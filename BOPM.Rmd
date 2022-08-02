@@ -1,0 +1,277 @@
+---
+title: "The binomial option pricing model"
+author: "Abhinav Anand, IIMB"
+documentclass: article
+output:
+  html_document:
+    df_print: paged
+citation_package: natbib
+bibliography: Working_Paper.bib
+header-includes:
+- \linespread{1.3}
+- \usepackage{amsmath}
+- \usepackage{tikz}
+- \usepackage{amssymb}
+fontsize: 12pt
+geometry: margin = 1.5in
+linkcolor: blue
+urlcolor: red
+citecolor: magenta
+---
+
+
+---
+nocite: |
+  @Tsay:2010
+  @Jondeau_Poon_Rockinger:2007
+  @Hull:2014
+...
+
+```{r setup, eval=T, message=FALSE, warning=F, include=FALSE}
+
+library(tidyverse)
+library(rmarkdown)
+library(knitr)
+library(moments) 
+library(tseries)
+library(sde)
+
+knitr::opts_chunk$set(echo = T, 
+                      warning = T, 
+                      message = F, 
+                      eval = T, 
+                      include = T,
+                      fig.height=3.5, 
+                      fig.width=3.5,
+                      fig.align = 'center'
+                      )
+
+### Old Time Series code to be recycled here ###
+file_bse <- "SENSEX.csv" 
+index_bse <- readr::read_csv(file_bse) %>%
+  dplyr::select(-empty)
+index_bse$Date <- as.Date(index_bse$Date, 
+                          format = "%d-%B-%Y"
+                          ) #date reformat
+
+
+
+```
+
+
+
+
+Imagine that the current price of a stock is \$20 and next quarter it could assume a value of either
+\$22 or \$18. The question is: what should be the price of a European call option with a strike of \$21
+next quarter?
+
+
+### Delta hedging 
+
+Imagine a synthetic portfolio which is long $\Delta$ share of the stock and short one call option.
+
+If price increases to \$22, what is the payoff from the portfolio? (Note that the option payoff
+in this scenario is 1. Why?)
+
+\[V_u = 22\Delta - 1\]
+
+If price falls to \$18, what is the payoff from the portfolio? (Note that the option payoff in this 
+scenario is 0. Why?)
+
+\[V_d = 18\Delta - 0\]
+
+Can we pick $\Delta$ so that portfolio value is identical whether the price goes up or down? (Perfect hedging?)
+Yes, if we pick $\Delta$ such that $V_u = V_d$.
+
+ \begin{align*}
+          V_u = V_d &\iff 22\Delta - 1 = 18\Delta  \\
+          \Rightarrow 4\Delta &= 1 \Rightarrow \Delta = 0.25
+  \end{align*}
+  
+  In plain language, a portfolio long 0.25 shares, and short 1 European call option guarantees the same value whether the stock price moves up or down.
+  
+  Checking: if price moves up to \$22,
+        \[V_u = 22\Delta - 1 \Rightarrow 22*0.25-1=4.5\]
+        
+  Checking: if price moves down to \$18,
+        \[V_d = 18\Delta \Rightarrow 18*0.25=4.5\]
+        
+  Question: What does it mean (operationally) to be long 0.25 shares and short 1 option?
+  Answer: Buying 100 shares, and selling 400 call options
+  
+  It is clear that the perfectly hedged portfolio has no uncertainty regarding its payoff, and hence should
+  earn the risk-free rate. Suppose that the risk-free rate is 4\%. Then the present value of the portfolio (whose
+  value one quarter in the future is 4.5) must be:
+  
+  \begin{align*}
+            V &= PV(V_u) = PV(V_d) = PV(4.5)\\
+            &\Rightarrow 4.5e^{-0.04*3/12} = 4.455
+   \end{align*}
+   
+   Thus, it must be, that the price of setting up the (perfect) hedge today must equal the present
+   value of the portfolio---otherwise there will be arbitrage opportunities.
+   
+   Hence, if the price of buying one European call option is $f$, then the following must hold:
+   
+   \begin{align*}
+            V &= 4.455 = 20\Delta-f\times 1=20*0.25-f\\
+            &\Rightarrow f = 5-4.455 = 0.545
+   \end{align*}
+   
+   In other words, by setting up a perfectly hedged portfolio using a call option, we can eliminate risk, 
+   and use its present value to find the price of the option.
+   
+   More generally, suppose the current stock price is $S_0$, and the option price is $f_0$, and the stock 
+   price can rise by a factor of $u>1$ to become $S_u=S_0u$ in the next period, or fall by a factor of $d<1$ 
+   to become $S_d=S_ud$. Suppose that option payoffs in the up and down state are $f_u$ and $f_d$ respectively.
+   
+   A little algebra shows that
+   
+   \begin{align}
+    \Delta = \frac{f_u-f_d}{S_0u-S_0d}
+  \end{align}
+  
+  More generally, if the maturity is $T$ and the risk-free rate is $r_f$, with probabilities
+  (risk-neutral) of being up or down being $p$ and $1-p$ respectively, the following two 
+  equations characterize the binomial tree:
+  
+  \begin{align}
+  f_0 &= e^{-r_f T}[pf_u+(1-p)f_d]\\
+  p &= \frac{e^{r_fT}-d}{u-d}
+  \end{align}
+  
+  Or, in plain language, the current option value is the expected option value at maturity
+  discounted at the risk-free rate.
+  
+### Risk-neutrality
+  
+  In general, investors are 'risk averse' which means that all else equal, they prefer lower volatility. Among two securities with the same mean and different volatilities, the investor strictly prefers the one with lower volatility. On the other hand, 'risk-neutral' investors are those who care only about expected returns, and *not* about volatility. Among two securities with the same mean return and different volatilties, the investor is indifferent.
+  
+  The key attraction of risk-neutral valuation is that the rate of return, as well as the discount rate for stocks/bonds/any security is the risk-free rate. Risk-neutral valuation principle guarantees the right price for the derivative not just in the risk-neutral universe, *but also* in the risk-averse universe
+  
+  Revisiting the problem, we note that expected price next quarter = Future value of stock price
+    \[22p+18(1-p) = 20e^{0.04*3/12}\Rightarrow p = 0.5503\]
+    
+   Thus at the end of three months, the option price is 1 with probability 0.5503, and 0 with the residual probability, leading to expected value:
+    \[\mathbb{E}(f) = pf_u+(1-p)f_d=0.5503*1+(1-0.5503)*0=0.5503\] 
+    
+  This is the expected value next quarter, its current value, discounted at the risk-free rate (4\%) is:
+    \[PV(\mathbb{E}(f)) = 0.5503e^{-0.04*3/12}=0.545\]
+        
+  
+### Two-period binomial trees
+
+Let's repeat the same idea now for two periods. Suppose that $K = \$21, T = 6, u = 1.1, d = 0.9$. 
+
+The stock price $S$ can become (as before) $S_u=22, S_d = 18$ in one period, and $S_{uu}=24.2, S_{ud} = S_{du} = 19.8, S_{dd} = 16.2$ in two periods. The corresponding option payoffs at the end of period 2 are $f_{uu} = 3.2, f_{ud}=f_{du} = f_{dd} = 0$ (Why?).
+Similarly, at state $d$ ($S_0d = 18$), option payoff is 0 also (Why?)
+
+The main idea behind multi-step binomial models is to start from the end node and work backwards to 
+compute option payoffs at each intermediate node. This is done by repeatedly applying the principle that
+the value of an option currently is its future expected payoff discounted at the risk-free rate.
+
+
+Applying this idea to the two-step binomial model, we get $f_{uu}=3.2, f_{ud} = 0$. The (risk-neutral)
+probability of an up movement $p=0.5503$ as before. Thus, for state $u$ ($S_0u = 22$), 
+we can use the one-step binomial formula:
+        \[p = 0.5503\Rightarrow f_u = e^{-0.04*3/12}(0.5503*3.2+(1-0.5503)*0)=1.7433\]
+
+Applying the same idea backward one more step, we do the calculation now for the first node $f_u=1.7433, f_d=0$.
+
+\[f_0 = e^{-0.04*3/12}(0.5503*1.7433+(1-0.5503)*0)=0.9497\]
+
+To summarize, the main idea is to start from the end node, infer option payoffs and risk-neutral probabilities,
+then work backwards to calculate inner nodes' option payoffs recursively. The main principle underlying this
+method is that the current option price is the expected future option value discounted at the risk-free rate.
+
+
+### $n$-period binomial trees
+
+The same idea works! The formulas now become:
+
+
+  \begin{align*}
+            f_0 &= e^{-r_f \frac{T}{n}}[pf_u+(1-p)f_d]\\
+            p &= \frac{e^{r_f\frac{T}{n}}-d}{u-d}
+        \end{align*}
+        
+  Since $u>1$ and $d<1$ capture the up/down dynamics of stock prices, they are related to the volatility. In a short time $T/n=\Delta t$,
+  a stock's volatility is $\sigma \sqrt{\Delta t}$. Thus, with (risk-neutral) probability $p$, the return is $u-1>0$ and 
+  with probability $1-p$ it is $d-1<0$.
+  
+  In general, the following equations completely characterize a binomial tree of length $n$
+  
+   \begin{align*}
+            u &= e^{\sigma \sqrt{\Delta t}}\\
+            d &= e^{-\sigma \sqrt{\Delta t}}\\
+            p &= \frac{e^{r_f\Delta t}-d}{u-d}\\
+            f_0 &= e^{-r_f \Delta t}[pf_u+(1-p)f_d]
+        \end{align*}
+  
+  
+  In practice, a binomial tree of length 20-30 is sufficient to capture the dynamics of stock prices.
+  
+## Limiting binomial trees as $T\to\infty$
+
+As the length of the binomial tree increases without bounds, the option price computed according to the 
+binomial tree converges to the Black-Scholes-Merton option price.
+
+### Proof
+
+
+Given strike price $K$, tree length $n$, $j$ up movements, and $n-j$ down movements
+    \begin{align}
+        f &= \max\{S_0u^jd^{n-j}-K,0\}
+    \end{align}
+  
+  The probability of $j$ up and $n-j$ down movements is:
+  
+  \begin{align}
+        {n\choose j} & p^j(1-p)^{n-j}\\
+        \Rightarrow \mathbb{E}(f) &=\sum_{j=0}^n {n\choose j} p^j(1-p)^{n-j} \max\{S_0u^jd^{n-j}-K,0\}
+  \end{align}
+  
+  Discounting at the risk-free rate, its current price is:
+    \begin{align}
+        f_0 = e^{-r_fT}\left(\sum_{j=0}^n {n\choose j} p^j(1-p)^{n-j} \max\{S_0u^jd^{n-j}-K,0\}\right)\label{Eq:opt_price}
+    \end{align}
+    
+  First term in the defining equation exceeds 0 when:
+    \begin{align}
+        S_0u^jd^{n-j}-K > 0 &\iff S_0u^jd^{n-j} > K\\
+        \ln(S_0/K) &> -j\ln(u) - (n-j)\ln(d)\label{Eq:j_n_minus_j}\\
+        \because u = e^{\sigma\sqrt{T/n}},& d = e^{-\sigma\sqrt{T/n}}, \text{ the above equation yields }\\
+        j &> \underbrace{\frac{n}{2} - \frac{\ln(S_0/K)}{2\sigma\sqrt{T/n}}}_{\alpha} \\
+        \text{ Thus, equation for the current option price becomes }\\
+        f_0 &= e^{-r_fT}\left(\sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} (S_0u^jd^{n-j}-K)\right)
+    \end{align}
+  
+  \begin{align}
+        \text{ Denote } U_1 &= \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} u^jd^{n-j}\\
+        \text{ Denote } U_2 &= \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j}\\
+        \text{ Thus, the equation for the current option price becomes } \\
+        f_0 &= e^{-r_fT}(S_0U_1-KU_2)\\
+        \text{ From the central limit theorem, as }& n\to \infty, \Pr(U_2>\alpha)\sim \mathcal{N}(np, \sqrt{np(1-p)})\nonumber\\
+        U_2&\sim \mathcal{N}\left(\frac{np-\alpha}{\sqrt{np(1-p)}}\right)\\
+        \text{ Substituting for } \alpha& \text{ and for } p \text{ and after some algebra }\nonumber\\
+        U_2 &\sim \mathcal{N}\left(\frac{\ln(S_0/K)+(r-\sigma^2/2)T}{\sigma\sqrt{T}}\right)
+    \end{align}
+    
+  \begin{align}
+        \text{ Similarly, } U_1 &= \sum_{j>\alpha} {n\choose j} (pu)^j[(1-p)d]^{n-j} \\
+        \text{ Redefining } p^* &= \frac{pu}{pu+(1-p)d}\\
+        U_1 &= [pu+(1-p)d]^n \sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}\\
+        \text{ Under risk-neutrality, }  pu+(1-p)d &= e^{r_fT/n}\\
+        \text{ From the central limit theorem, as }& n\to \infty\nonumber\\
+        U_1 \&= e^{r_fT}\sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}\\
+        \text{ This shows that U_1\sim \mathcal{B}(p^*, 1-p^*)}\\
+        \text{ Hence, } U_1 &= e^{r_fT}\mathcal{N}\left(\frac{np^*-\alpha}{\sqrt{np^*(1-p^*})}\right)\\
+        \text{ Substituting for } \alpha& \text{ and for } p^* \text{ and after some algebra }\nonumber\\
+        U_1 &= e^{r_fT}\mathcal{N}\left(\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}}\right)\\
+        \text{ In other words, the famous formula } \nonumber\\
+        f &= S_0\mathcal{N}(d_1) - Ke^{-r_fT}\mathcal{N}(d_2)
+  \end{align}
+    
+    
+
+# References

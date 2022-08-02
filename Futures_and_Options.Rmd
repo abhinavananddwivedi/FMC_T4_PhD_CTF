@@ -44,13 +44,6 @@ knitr::opts_chunk$set(echo = T,
                       fig.align = 'center'
                       )
 
-### Old Time Series code to be recycled here ###
-file_bse <- "SENSEX.csv" 
-index_bse <- readr::read_csv(file_bse) %>%
-  dplyr::select(-empty)
-index_bse$Date <- as.Date(index_bse$Date, 
-                          format = "%d-%B-%Y"
-                          ) #date reformat
 
 
 
