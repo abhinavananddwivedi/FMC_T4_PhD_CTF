@@ -1,0 +1,116 @@
+---
+title: "Futures and Options"
+author: "Abhinav Anand, IIMB"
+documentclass: article
+output:
+  html_document:
+    df_print: paged
+urlcolor: red
+citecolor: magenta
+citation_package: natbib
+bibliography: Working_Paper.bib
+header-includes:
+- \linespread{1.3}
+- \usepackage{amsmath}
+fontsize: 12pt
+geometry: margin = 1.5in
+linkcolor: blue
+---
+
+
+---
+nocite: |
+  @Tsay:2010
+  @Jondeau_Poon_Rockinger:2007
+  @Hull:2014
+...
+
+```{r setup, eval=T, message=FALSE, warning=F, include=FALSE}
+
+library(tidyverse)
+library(rmarkdown)
+library(knitr)
+library(moments) 
+library(tseries)
+library(sde)
+
+knitr::opts_chunk$set(echo = T, 
+                      warning = T, 
+                      message = F, 
+                      eval = T, 
+                      include = T,
+                      fig.height=3.5, 
+                      fig.width=3.5,
+                      fig.align = 'center'
+                      )
+
+### Old Time Series code to be recycled here ###
+file_bse <- "SENSEX.csv" 
+index_bse <- readr::read_csv(file_bse) %>%
+  dplyr::select(-empty)
+index_bse$Date <- as.Date(index_bse$Date, 
+                          format = "%d-%B-%Y"
+                          ) #date reformat
+
+
+
+```
+
+
+# Background
+
+Forwards, futures, options etc. are all examples of *derivatives*, whose values (or prices) *derive* from 
+the values of more fundamental assets, such as bonds or stocks or interest rates etc. In principle, however,
+derivatives can depend on any variable ranging from the price of cattle (hogs), commodities (wheat, rice, oil, gold),
+weather (rainfall, snowfall, temperatures) or any other metric of interest.
+
+## Exchange traded markets
+
+Standardized derivative contracts can be traded in exchange traded markets. Once two traders have agreed on some trade
+the exchange clearing house handles it by standing between the parties. The main advantage of having an exchange 
+act as an intermediary is that the trading parties need not worry about the counterparty credit risk, which is 
+in fact, borne by the exchange. To do this, the exchange requires both parties to post a *collateral*---also known as *margin*---with
+it to ensure that they discharge their obligations
+
+## Over the counter (OTC) markets
+
+Not all derivative trading takes place on an exchange. In fact, a larger proportion of trades occur *over-the-counter*
+or directly between two parties. The main advantage of OTC markets is that the derivative need not be standardized---it can
+be customized to suit the needs of the counterparties exactly and hence offers more flexibility.
+
+Banks, hedge funds, institutional investors etc. are important participants of OTC markets.
+Usually, once an OTC trade is agreed upon, the parties either clear it bilaterally---incurring some credit risk---or present 
+it to some *central counterparty (CCP)*. Usually large banks will act as market makers for the more usually traded instruments.
+This means that they will buy at the bid price and sell at the ask price. After the crisis, OTC trades are regulated and are encouraged to conform to the norms of exchange traded markets by the use of central counterparties. 
+
+The size of  OTC markets in December 2015 was ~ USD 500 *trillion*, and that for exchange traded markets was ~ USD 65 *trillion*.
+
+## Forward contracts
+
+This is among the simplest derivatives. It is an agreement to buy or sell an asset at a pre-specifed price in the future. 
+Usually this is traded on OTC markets between two counterparties. The party agreeing to buy the forward contract is 
+said to have a *long position* and that which agrees to sell has a *short position*. The most popular forward contracts 
+are based on foreign exchange rates, and are mainly used to hedge foreign exchange risk. As opposed to other derivatives like options,
+forward contracts are *binding* on both parties, and it *costs nothing* to enter into a forward contract agreement.
+
+## Futures contracts
+
+Futures are like forwards in that they are agreements about buying or selling something at a pre-specified price 
+in the future. However, unlike forwards, futures are traded on exchanges which implies that the counterparties need 
+to deposit a margin with the exchange which gets settled at the end of each trading day. Some popular varieties of futures
+include those on sugar, wool, lumber, copper, gold, silver, tin, oil, stock indices, currencies, bonds etc. Futures are also 
+binding agreements between the counterparties. 
+
+## Options 
+
+Options give the right but not the obligation to buy or sell underlying assets at a pre-specified price 
+(*strike price/exercise price*) at a future time (*maturity*). A *call option* is the right to buy at a certain price
+in the future, while a *put option* is the right to sell at the strike at maturity. 
+
+Unlike forwards and futures, options are costly to set up. Call option prices fall as the strike price rises, while 
+put option prices rise with the increase in strike. Both become more valuable as their maturity rises. Buyers of options
+are said to have *long positions* and sellers have *short positions*.
+
+
+
+# References
