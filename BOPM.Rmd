@@ -2,8 +2,7 @@
 title: "The binomial option pricing model"
 author: "Abhinav Anand, IIMB"
 documentclass: article
-
-citation_package: natbib
+output: pdf_document
 bibliography: Working_Paper.bib
 header-includes:
 - \linespread{1.3}
@@ -15,6 +14,7 @@ geometry: margin = 1.5in
 linkcolor: blue
 urlcolor: red
 citecolor: magenta
+citation_package: natbib
 ---
 
 
@@ -228,48 +228,70 @@ Given strike price $K$, tree length $n$, $j$ up movements, and $n-j$ down moveme
         {n\choose j} & p^j(1-p)^{n-j}\\
         \Rightarrow \mathbb{E}(f) &=\sum_{j=0}^n {n\choose j} p^j(1-p)^{n-j} \max\{S_0u^jd^{n-j}-K,0\}
   \end{align}
-  
-  Discounting at the risk-free rate, its current price is:
+
+Discounting at the risk-free rate, its current price is:
     \begin{align}
-        f_0 = e^{-r_fT}\left(\sum_{j=0}^n {n\choose j} p^j(1-p)^{n-j} \max\{S_0u^jd^{n-j}-K,0\}\right)\label{Eq:opt_price}
+        f_0 = e^{-r_fT}\left(\sum_{j=0}^n {n\choose j} p^j(1-p)^{n-j} \max\{S_0u^jd^{n-j}-K,0\}\right)
     \end{align}
     
-  First term in the defining equation exceeds 0 when:
+ First term in the defining equation exceeds 0 when:
     \begin{align}
-        S_0u^jd^{n-j}-K > 0 &\iff S_0u^jd^{n-j} > K\\
-        \ln(S_0/K) &> -j\ln(u) - (n-j)\ln(d)\label{Eq:j_n_minus_j}\\
-        \because u = e^{\sigma\sqrt{T/n}},& d = e^{-\sigma\sqrt{T/n}}, \text{ the above equation yields }\\
-        j &> \underbrace{\frac{n}{2} - \frac{\ln(S_0/K)}{2\sigma\sqrt{T/n}}}_{\alpha} \\
-        \text{ Thus, equation for the current option price becomes }\\
-        f_0 &= e^{-r_fT}\left(\sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} (S_0u^jd^{n-j}-K)\right)
+        S_0u^jd^{n-j}-K > 0 \iff S_0u^jd^{n-j} &> K\\
+        \ln(S_0/K) > -j\ln(u) - (n-j)\ln(d)\\
+        \because u = e^{\sigma\sqrt{T/n}}, d = e^{-\sigma\sqrt{T/n}}, \text{ the above equation yields }\nonumber\\
+        j > \underbrace{\frac{n}{2} - \frac{\ln(S_0/K)}{2\sigma\sqrt{T/n}}}_{\alpha} \\
+        \text{ Thus, equation for the current option price becomes }\nonumber\\
+        f_0 = e^{-r_fT}\left(\sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} (S_0u^jd^{n-j}-K)\right)
     \end{align}
   
+This can be further analyzed as:
+
   \begin{align}
-        \text{ Denote } U_1 &= \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} u^jd^{n-j}\\
-        \text{ Denote } U_2 &= \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j}\\
-        \text{ Thus, the equation for the current option price becomes } \\
-        f_0 &= e^{-r_fT}(S_0U_1-KU_2)\\
-        \text{ From the central limit theorem, as }& n\to \infty, \Pr(U_2>\alpha)\sim \mathcal{N}(np, \sqrt{np(1-p)})\nonumber\\
-        U_2&\sim \mathcal{N}\left(\frac{np-\alpha}{\sqrt{np(1-p)}}\right)\\
-        \text{ Substituting for } \alpha& \text{ and for } p \text{ and after some algebra }\nonumber\\
-        U_2 &\sim \mathcal{N}\left(\frac{\ln(S_0/K)+(r-\sigma^2/2)T}{\sigma\sqrt{T}}\right)
-    \end{align}
-    
-  \begin{align}
-        \text{ Similarly, } U_1 &= \sum_{j>\alpha} {n\choose j} (pu)^j[(1-p)d]^{n-j} \\
-        \text{ Redefining } p^* &= \frac{pu}{pu+(1-p)d}\\
-        U_1 &= [pu+(1-p)d]^n \sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}\\
-        \text{ Under risk-neutrality, }  pu+(1-p)d &= e^{r_fT/n}\\
-        \text{ From the central limit theorem, as }& n\to \infty\nonumber\\
-        U_1 \&= e^{r_fT}\sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}\\
-        \text{ This shows that U_1\sim \mathcal{B}(p^*, 1-p^*)}\\
-        \text{ Hence, } U_1 &= e^{r_fT}\mathcal{N}\left(\frac{np^*-\alpha}{\sqrt{np^*(1-p^*})}\right)\\
-        \text{ Substituting for } \alpha& \text{ and for } p^* \text{ and after some algebra }\nonumber\\
-        U_1 &= e^{r_fT}\mathcal{N}\left(\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}}\right)\\
-        \text{ In other words, the famous formula } \nonumber\\
-        f &= S_0\mathcal{N}(d_1) - Ke^{-r_fT}\mathcal{N}(d_2)
+        U_1 &\equiv \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j} u^jd^{n-j}\\
+        U_2 &\equiv \sum_{j>\alpha} {n\choose j} p^j(1-p)^{n-j}
   \end{align}
-    
-    
+        
+Thus, the equation for the current option price becomes
+
+\begin{align}
+      f_0 = e^{-r_fT}(S_0U_1-KU_2)
+\end{align}
+
+From the central limit theorem, as $n\to \infty, \Pr(U_2>\alpha)\sim \mathcal{N}(np, \sqrt{np(1-p)})$
+
+\begin{align}
+        U_2\sim \mathcal{N}\left(\frac{np-\alpha}{\sqrt{np(1-p)}}\right)\\
+        \text{ Substituting for } \alpha \text{ and for } p \text{ and after some algebra }\nonumber\\
+        U_2 \sim \mathcal{N}\left(\frac{\ln(S_0/K)+(r-\sigma^2/2)T}{\sigma\sqrt{T}}\right)
+\end{align}
+
+Similarly,
+
+ \begin{align}
+        U_1 = \sum_{j>\alpha} {n\choose j} (pu)^j[(1-p)d]^{n-j} 
+\end{align}
+
+Redefining $p^* = \frac{pu}{pu+(1-p)d}$ we get
+
+\begin{align}
+        U_1 = [pu+(1-p)d]^n \sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}
+\end{align}
+
+Under risk-neutrality, $pu+(1-p)d = e^{r_fT/n}$. From the central limit theorem, as $n\to \infty$
+
+ \begin{align}
+        U_1 = e^{r_fT}\sum_{j>\alpha} {n\choose j} (p^*)^j(1-p^*)^{n-j}
+\end{align}
+
+This shows that $U_1\sim \mathcal{B}(p^*, 1-p^*)$. Hence
+
+\begin{align}
+U_1 = e^{r_fT}\mathcal{N}\left(\frac{np^*-\alpha}{\sqrt{np^*(1-p^*})}\right)\\
+        \text{ Substituting for } \alpha \text{ and for } p^* \text{ and after some algebra }\nonumber\\
+        U_1 = e^{r_fT}\mathcal{N}\left(\frac{\ln(S_0/K)+(r+\sigma^2/2)T}{\sigma\sqrt{T}}\right)\\
+        \text{ In other words, the famous formula } \nonumber\\
+        f = S_0\mathcal{N}(d_1) - Ke^{-r_fT}\mathcal{N}(d_2)
+  \end{align}
+  
 
 # References
