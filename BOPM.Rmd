@@ -2,9 +2,7 @@
 title: "The binomial option pricing model"
 author: "Abhinav Anand, IIMB"
 documentclass: article
-output:
-  html_document:
-    df_print: paged
+
 citation_package: natbib
 bibliography: Working_Paper.bib
 header-includes:
