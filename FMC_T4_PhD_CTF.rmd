@@ -145,15 +145,20 @@ In this section we discuss the Wiener process integrated against itself.
 
 Consider a Wiener process $W_t$ with $t\in [0,1]$ and $0=t_1<t_2<\hdots<t_n = 1$. Pick $\tau_i\in[t_{i-1}, t_i]$ and evaluate the integral $\int_0^T W_tdW_t$ by a Riemann sum as follows:
 
-\[I_n = \sum_{i=1}^n W_{\tau_i}(W_{t_i}-W_{t_{i-1}})\]
+\[I_n = \sum_{i=1}^n W_{\tau_i}(W_{t_i}-W_{t_{i-1}})\sim W_T^2/2 - W_0^2/2 - T/2 + 
+\sum_{i=1}^N(\tau_i-t_{i-1})\]
 
 In general, $\tau_i\in[t_{i-1}, t_i]$ and hence for some $\lambda\in (0,1)$ can be represented as 
 
 \[\tau_i = t_{i-1} + \lambda \cdot (t_i-t_{i-1})\]
+\[I_n \sim W_T^2/2 -W_0^2/2 - T/2 + \lambda T\]
 
 However, it can be shown that the classical Riemann formula that gives $\int_0^T W_tdW_t = 1/2 W_t^2$ holds only when $\lambda = 1/2$---dubbed the \emph{Stratanovich} stochastic integral. The \emph{Ito} integral is obtained at $\lambda = 0$---i.e., when $\tau_i = t_{i-1}$---when the left end point of the partition is chosen. In this case:
 
 \[\int_0^T W_tdW_t =\lim_{n\to\infty} \sum_{i=1}^n W_{t_{i-1}}(W_{t_i}-W_{t_{i-1}})\]
+
+In other words, in general, 
+\[\int_0^T\alpha_tdW_t = \lim_{N\to\infty} \alpha_{t_{i-1}}(W_{t_i}-W_{t_{i-1}})\]
 
 # Kolmogorov equations
 
