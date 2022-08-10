@@ -1,28 +1,18 @@
 ---
 title: "Wiener Processes"
-author: Abhinav Anand, IIMB
-date: '`r format(Sys.time(), "%Y/%m/%d")`' #current date
-
-output:
-  pdf_document:
-    keep_tex: true
-
+author: "Abhinav Anand, IIMB"
 fontsize: 12pt
-documentclass: article
+output: pdf_document
 geometry: margin = 1.5in
-
 linkcolor: blue
 urlcolor: red
 citecolor: magenta
-
 citation_package: natbib
 bibliography: Working_Paper.bib
-
 header-includes:
-   - \linespread{1.3}
-   - \usepackage{amsmath}
-
-
+- \linespread{1.3}
+- \usepackage{amsmath}
+documentclass: article
 ---
 
 
