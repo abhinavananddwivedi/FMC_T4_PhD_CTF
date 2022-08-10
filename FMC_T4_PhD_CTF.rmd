@@ -158,7 +158,7 @@ However, it can be shown that the classical Riemann formula that gives $\int_0^T
 \[\int_0^T W_tdW_t =\lim_{n\to\infty} \sum_{i=1}^n W_{t_{i-1}}(W_{t_i}-W_{t_{i-1}})\]
 
 In other words, in general, 
-\[\int_0^T\alpha_tdW_t = \lim_{N\to\infty} \alpha_{t_{i-1}}(W_{t_i}-W_{t_{i-1}})\]
+\[\int_0^T\alpha_tdW_t = \lim_{N\to\infty} \sum_{i=1}^N\alpha_{t_{i-1}}(W_{t_i}-W_{t_{i-1}})\]
 
 # Kolmogorov equations
 
